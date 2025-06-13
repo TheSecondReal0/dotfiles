@@ -1,0 +1,6 @@
+# common
+alias ls='ls -a --color'
+
+# git
+source ~/dotfiles/bash/.bashrc_git
+
