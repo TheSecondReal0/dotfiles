@@ -19,7 +19,9 @@ POWERLINE_SHOW_GIT_ON_LEFT=""
 POWERLINE_SHOW_GIT_ON_RIGHT=""
 
 # limit file path to last 3 dirs
-POWERLINE_CUSTOM_CURRENT_PATH="%3~"
+# POWERLINE_CUSTOM_CURRENT_PATH="%3~"
+# truncate path dirs like bobthefish
+POWERLINE_PATH="truncate_dirs"
 
 if [ ! -f "$HOME/.oh-my-zsh/themes/powerline.zsh-theme" ]; then
 	cp "$HOME/dotfiles/zsh/themes/powerline.zsh-theme" "$HOME/.oh-my-zsh/themes/powerline.zsh-theme"

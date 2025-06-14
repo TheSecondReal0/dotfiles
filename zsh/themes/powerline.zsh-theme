@@ -36,10 +36,42 @@ else
     POWERLINE_USER_NAME=""
 fi
 
+
+truncate_dirs() {
+  local path=$PWD
+  local prefix=""
+  local IFS="/"
+
+  # Handle home directory exactly
+  if [[ $path == "$HOME" ]]; then
+    echo "~"
+    return
+  elif [[ $path == $HOME/* ]]; then
+    prefix="~"
+    path="${path#$HOME}"
+  fi
+
+  # Split into path parts
+  local parts=(${(s:/:)path})
+  local n=${#parts[@]}
+  local out=""
+
+  for ((i = 1; i < n; i++)); do
+    [[ -n ${parts[i]} ]] && out+="${parts[i]:0:1}/"
+  done
+
+  out+="${parts[-1]}"
+  echo "${prefix}/${out}"
+}
+
+setopt PROMPT_SUBST
+
 if [ "$POWERLINE_PATH" = "full" ]; then
   POWERLINE_PATH="%1~"
 elif [ "$POWERLINE_PATH" = "short" ]; then
   POWERLINE_PATH="%~"
+elif [ "$POWERLINE_PATH" = "truncate_dirs" ]; then
+  POWERLINE_PATH='$(truncate_dirs)'
 else
   POWERLINE_PATH="%d"
 fi
