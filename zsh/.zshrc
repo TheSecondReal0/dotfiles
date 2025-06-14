@@ -10,6 +10,9 @@ export ZSH="$HOME/.oh-my-zsh"
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerline"
 
+# make right prompt flush with end of screen
+ZLE_RPROMPT_INDENT=0
+
 POWERLINE_RIGHT_A="exit-status-on-fail"
 POWERLINE_HIDE_USER_NAME="true"
 POWERLINE_HIDE_HOST_NAME="true"
