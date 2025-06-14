@@ -42,7 +42,11 @@ truncate_dirs() {
   local prefix=""
   local IFS="/"
 
-  # Handle home directory exactly
+  # Color definitions
+  local TRUNC_COLOR="%F{black}"
+  local RESET_COLOR="%F{black}"
+
+  # Special case: exactly in home directory
   if [[ $path == "$HOME" ]]; then
     echo "~"
     return
@@ -51,7 +55,6 @@ truncate_dirs() {
     path="${path#$HOME}"
   fi
 
-  # Split into path parts
   local parts=(${(s:/:)path})
   local n=${#parts[@]}
   local out=""
@@ -60,8 +63,9 @@ truncate_dirs() {
     [[ -n ${parts[i]} ]] && out+="${parts[i]:0:1}/"
   done
 
-  out+="${parts[-1]}"
-  echo "${prefix}/${out}"
+  out="${TRUNC_COLOR}${prefix}/${out}${RESET_COLOR}${parts[-1]}"  # leave last part uncolored (or customize)
+  # echo "${prefix}/${out}"
+  echo "${out}"
 }
 
 setopt PROMPT_SUBST
