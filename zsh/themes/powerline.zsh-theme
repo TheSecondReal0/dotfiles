@@ -10,12 +10,14 @@ elif [ "$POWERLINE_RIGHT_B" = "none" ]; then
   POWERLINE_RIGHT_B=""
 fi
 
+POWERLINE_EXIT_STATUS_ON_FAIL=%(?..%F{red}✘ %?)
+
 if [ "$POWERLINE_RIGHT_A" = "mixed" ]; then
   POWERLINE_RIGHT_A=%(?."$POWERLINE_DATE_FORMAT".%F{red}✘ %?)
 elif [ "$POWERLINE_RIGHT_A" = "exit-status" ]; then
   POWERLINE_RIGHT_A=%(?.%F{green}✔ %?.%F{red}✘ %?)
 elif [ "$POWERLINE_RIGHT_A" = "exit-status-on-fail" ]; then
-  POWERLINE_RIGHT_A=%(?..%F{red}✘ %?)
+  POWERLINE_RIGHT_A=$POWERLINE_EXIT_STATUS_ON_FAIL
 elif [ "$POWERLINE_RIGHT_A" = "date" ]; then
   POWERLINE_RIGHT_A="$POWERLINE_DATE_FORMAT"
 fi
@@ -71,17 +73,47 @@ truncate_dirs() {
 # necessary to call truncate_dirs at prompt time
 setopt PROMPT_SUBST
 
-SCROLLBACK_PROMPT='%F{blue}%B> %F%b'
+SCROLLBACK_PROMPT="%D{%H:%M:%S} %(?..%F{red}✘ %? )%F{blue}%B> %F%b"
+
+# trying to get prompt rewriting working on ctrl C, nothing worked
+function reset-scrollback-prompt() {
+    PROMPT="$SCROLLBACK_PROMPT" \
+        RPROMPT="" \
+        zle reset-prompt
+    zle redisplay
+    zle -R
+    print -n '\E[0m\E[K'
+    print -n '\r'
+    zle redisplay
+}
 
 function del-prompt-accept-line() {
-    PROMPT="$SCROLLBACK_PROMPT" \
-        zle reset-prompt
+    reset-scrollback-prompt
     zle .accept-line
 }
+zle -N accept-line del-prompt-accept-line
+
+function del-prompt-send-break() {
+    reset-scrollback-prompt
+    zle .send-break
+}
+zle -N send-break del-prompt-send-break
+
+function del-prompt-eof() {
+    reset-scrollback-prompt
+    zle .send-eof
+}
+zle -N send-eof del-prompt-eof
+
+function del-prompt-clear-screen() {
+    reset-scrollback-prompt
+    zle .clear-screen
+}
+zle -N clear-screen del-prompt-clear-screen
+
 function preexec() {
     print -n '\E[0m\E[K'
 }
-zle -N accept-line del-prompt-accept-line
 
 if [ "$POWERLINE_PATH" = "full" ]; then
   POWERLINE_PATH="%1~"
