@@ -68,7 +68,20 @@ truncate_dirs() {
   echo "${out}"
 }
 
+# necessary to call truncate_dirs at prompt time
 setopt PROMPT_SUBST
+
+SCROLLBACK_PROMPT='%F{blue}%B> %F%b'
+
+function del-prompt-accept-line() {
+    PROMPT="$SCROLLBACK_PROMPT" \
+        zle reset-prompt
+    zle .accept-line
+}
+function preexec() {
+    print -n '\E[0m\E[K'
+}
+zle -N accept-line del-prompt-accept-line
 
 if [ "$POWERLINE_PATH" = "full" ]; then
   POWERLINE_PATH="%1~"
