@@ -136,13 +136,13 @@ if [ "$POWERLINE_CUSTOM_CURRENT_PATH" != "" ]; then
   POWERLINE_PATH="$POWERLINE_CUSTOM_CURRENT_PATH"
 fi
 
-if [ "$POWERLINE_GIT_CLEAN" = "" ]; then
-  POWERLINE_GIT_CLEAN="✔"
-fi
-
-if [ "$POWERLINE_GIT_DIRTY" = "" ]; then
-  POWERLINE_GIT_DIRTY="✘"
-fi
+# if [ "$POWERLINE_GIT_CLEAN" = "" ]; then
+#   POWERLINE_GIT_CLEAN="✔"
+# fi
+#
+# if [ "$POWERLINE_GIT_DIRTY" = "" ]; then
+#   POWERLINE_GIT_DIRTY="✘"
+# fi
 
 if [ "$POWERLINE_GIT_ADDED" = "" ]; then
   POWERLINE_GIT_ADDED="%F{green}✚%F{black}"
@@ -150,6 +150,10 @@ fi
 
 if [ "$POWERLINE_GIT_MODIFIED" = "" ]; then
   POWERLINE_GIT_MODIFIED="%F{blue}✹%F{black}"
+fi
+
+if [ "$POWERLINE_GIT_UNSTAGED" = "" ]; then
+  POWERLINE_GIT_UNSTAGED="%F{red}✹%F{black}"
 fi
 
 if [ "$POWERLINE_GIT_DELETED" = "" ]; then
@@ -176,13 +180,112 @@ if [ "$POWERLINE_RIGHT_A_COLOR_BACK" = "" ]; then
   POWERLINE_RIGHT_A_COLOR_BACK="black"
 fi
 
+function git_prompt_status() {
+  [[ "$(__git_prompt_git config --get oh-my-zsh.hide-status 2>/dev/null)" = 1 ]] && return
+
+  # Maps a git status prefix to an internal constant
+  # This cannot use the prompt constants, as they may be empty
+  local -A prefix_constant_map
+  prefix_constant_map=(
+    '\?\? '     'UNTRACKED'
+    'A. '       'ADDED'
+    'M( |M) '   'MODIFIED'
+    '( |M)M '   'UNSTAGED'
+    ' T '       'MODIFIED'
+    'R  '       'RENAMED'
+    ' D '       'DELETED'
+    'D  '       'DELETED'
+    'UU '       'UNMERGED'
+    'ahead'     'AHEAD'
+    'behind'    'BEHIND'
+    'diverged'  'DIVERGED'
+    'stashed'   'STASHED'
+  )
+
+  # Maps the internal constant to the prompt theme
+  local -A constant_prompt_map
+  constant_prompt_map=(
+    'UNTRACKED' "$ZSH_THEME_GIT_PROMPT_UNTRACKED"
+    'ADDED'     "$ZSH_THEME_GIT_PROMPT_ADDED"
+    'MODIFIED'  "$ZSH_THEME_GIT_PROMPT_MODIFIED"
+    'UNSTAGED'  "$ZSH_THEME_GIT_PROMPT_UNSTAGED"
+    'RENAMED'   "$ZSH_THEME_GIT_PROMPT_RENAMED"
+    'DELETED'   "$ZSH_THEME_GIT_PROMPT_DELETED"
+    'UNMERGED'  "$ZSH_THEME_GIT_PROMPT_UNMERGED"
+    'AHEAD'     "$ZSH_THEME_GIT_PROMPT_AHEAD"
+    'BEHIND'    "$ZSH_THEME_GIT_PROMPT_BEHIND"
+    'DIVERGED'  "$ZSH_THEME_GIT_PROMPT_DIVERGED"
+    'STASHED'   "$ZSH_THEME_GIT_PROMPT_STASHED"
+  )
+
+  # The order that the prompt displays should be added to the prompt
+  local status_constants
+  status_constants=(
+    UNTRACKED UNSTAGED ADDED MODIFIED RENAMED DELETED
+    STASHED UNMERGED AHEAD BEHIND DIVERGED
+  )
+
+  local status_text
+  status_text="$(__git_prompt_git status --porcelain -b 2> /dev/null)"
+
+  # Don't continue on a catastrophic failure
+  if [[ $? -eq 128 ]]; then
+    return 1
+  fi
+
+  # A lookup table of each git status encountered
+  local -A statuses_seen
+
+  if __git_prompt_git rev-parse --verify refs/stash &>/dev/null; then
+    statuses_seen[STASHED]=1
+  fi
+
+  local status_lines
+  status_lines=("${(@f)${status_text}}")
+
+  # If the tracking line exists, get and parse it
+  if [[ "$status_lines[1]" =~ "^## [^ ]+ \[(.*)\]" ]]; then
+    local branch_statuses
+    branch_statuses=("${(@s/,/)match}")
+    for branch_status in $branch_statuses; do
+      if [[ ! $branch_status =~ "(behind|diverged|ahead) ([0-9]+)?" ]]; then
+        continue
+      fi
+      local last_parsed_status=$prefix_constant_map[$match[1]]
+      statuses_seen[$last_parsed_status]=$match[2]
+    done
+  fi
+
+  # For each status prefix, do a regex comparison
+  for status_prefix in ${(k)prefix_constant_map}; do
+    local status_constant="${prefix_constant_map[$status_prefix]}"
+    local status_regex=$'(^|\n)'"$status_prefix"
+
+    if [[ "$status_text" =~ $status_regex ]]; then
+      statuses_seen[$status_constant]=1
+    fi
+  done
+
+  # Display the seen statuses in the order specified
+  local status_prompt
+  for status_constant in $status_constants; do
+    if (( ${+statuses_seen[$status_constant]} )); then
+      local next_display=$constant_prompt_map[$status_constant]
+      status_prompt="$next_display$status_prompt"
+    fi
+  done
+
+  echo $status_prompt
+}
+
 ZSH_THEME_GIT_PROMPT_PREFIX=" \ue0a0 "
 ZSH_THEME_GIT_PROMPT_SUFFIX=""
-ZSH_THEME_GIT_PROMPT_DIRTY=" $POWERLINE_GIT_DIRTY"
+ZSH_THEME_GIT_PROMPT_CLEAN=" $POWERLINE_GIT_CLEAN"
 ZSH_THEME_GIT_PROMPT_CLEAN=" $POWERLINE_GIT_CLEAN"
 
 ZSH_THEME_GIT_PROMPT_ADDED=" $POWERLINE_GIT_ADDED"
 ZSH_THEME_GIT_PROMPT_MODIFIED=" $POWERLINE_GIT_MODIFIED"
+ZSH_THEME_GIT_PROMPT_UNSTAGED=" $POWERLINE_GIT_UNSTAGED"
 ZSH_THEME_GIT_PROMPT_DELETED=" $POWERLINE_GIT_DELETED"
 ZSH_THEME_GIT_PROMPT_UNTRACKED=" $POWERLINE_GIT_UNTRACKED"
 ZSH_THEME_GIT_PROMPT_RENAMED=" $POWERLINE_GIT_RENAMED"
@@ -197,7 +300,7 @@ ZSH_THEME_GIT_PROMPT_DIVERGED=" ⬍"
 # else
     if [ ! "$POWERLINE_SHOW_GIT_ON_LEFT" = "" ]; then
         if [ "$POWERLINE_HIDE_GIT_PROMPT_STATUS" = "" ]; then
-            POWERLINE_GIT_INFO_LEFT=" %F{blue}%K{white}"$'\ue0b0'"%F{white}%F{black}%K{white}"$'$(git_prompt_info)$(git_prompt_status)%F{white}'
+            POWERLINE_GIT_INFO_LEFT=" %F{blue}%K{white}"$'\ue0b0'"%F{white}%F{black}%K{white}"$'$(git_prompt_info)$(git_prompt_status)%F{white}%u'
         else
             POWERLINE_GIT_INFO_LEFT=" %F{blue}%K{white}"$'\ue0b0'"%F{white}%F{black}%K{white}"$'$(git_prompt_info)%F{white}'
         fi
