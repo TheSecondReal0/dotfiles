@@ -73,7 +73,14 @@ truncate_dirs() {
 # necessary to call truncate_dirs at prompt time
 setopt PROMPT_SUBST
 
-SCROLLBACK_PROMPT="%D{%H:%M:%S} %(?..%F{red}✘ %? )%F{blue}%B> %F%b"
+if [ "$SCROLLBACK_TIME_COLOR" = "" ]; then
+	SCROLLBACK_TIME_COLOR="white"
+fi
+SCROLLBACK_TIME_TEXT="%D{%H:%M:%S}"
+if [ "$SCROLLBACK_TIME_BRACKETS" != "" ]; then
+	SCROLLBACK_TIME_TEXT="[$SCROLLBACK_TIME_TEXT]"
+fi
+SCROLLBACK_PROMPT="%F{$SCROLLBACK_TIME_COLOR}$SCROLLBACK_TIME_TEXT%F %(?..%F{red}✘ %? )%F{blue}%B> %F%b"
 
 # trying to get prompt rewriting working on ctrl C, nothing worked
 function reset-scrollback-prompt() {
