@@ -11,3 +11,5 @@ alias gitc='git commit -m'
 alias gitp='git push'
 alias gitpu='git pull'
 alias gitpreb='git pull --rebase'
+alias stiff='git diff --staged'
+
