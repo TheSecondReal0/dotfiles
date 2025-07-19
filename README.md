@@ -1,5 +1,6 @@
 # Setup
-Clone into `~/dotfiles`
+1. Clone into `~/dotfiles`
+2. Install a [nerd font](https://www.nerdfonts.com) (I use 0xProto)
 
 ## Zsh
 ### Oh-my-zsh
