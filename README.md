@@ -34,9 +34,9 @@ set -g default-shell /bin/zsh
 * Sets prefix to Ctrl + Space
 * Tokyo night theme
 * Enable mouse usage
-* Install (tmux-sensible)[https://github.com/tmux-plugins/tmux-sensible]
+* Install [tmux-sensible](https://github.com/tmux-plugins/tmux-sensible)
 * Session saving and restoring across reboots with [tmux-ressurect](https://github.com/tmux-plugins/tmux-resurrect), autosave with [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum)
-  a. Save session with Prefix + s, reload with Prefix + r
+  - Save session with Prefix + s, reload with Prefix + r
 
 ## Kitty
 1. Install [kitty](https://sw.kovidgoyal.net/kitty/)
