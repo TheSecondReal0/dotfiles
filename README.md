@@ -36,6 +36,7 @@ set -g default-shell /bin/zsh
 * New panes start in same workdir as current pane
 * Keybinds to open popups for various things (ephemeral zsh terminal, search tmux sessions, make new named session, lazygit, etc.)
 * Vim motions for moving between panes
+* use [tmux-fzf-links](https://github.com/alberti42/tmux-fzf-links) to get a popup to show all references to URLs and files, easy open from there. Prefix + Ctrl + h to open
 * Tokyo night theme
 * Enable mouse usage
 * Install [tmux-sensible](https://github.com/tmux-plugins/tmux-sensible)
