@@ -18,6 +18,7 @@ source ~/dotfiles/zsh/.zshrc
 * Powerline prompt
 * Working directory truncating (e.g. `~/dev/game/cool/strategy` -> `~/d/g/c/strategy`)
 * Prompt changes to be more minimal after entering command, avoids old powerline prompts uglifying scrollback buffer
+* Tokyo night theme for `fzf`
 
 ## Tmux
 ### Setup

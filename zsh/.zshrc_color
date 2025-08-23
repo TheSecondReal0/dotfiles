@@ -1,8 +1,3 @@
-include default.conf
-include tokyo-night-kitty.conf
-
-clipboard_control write-clipboard write-primary no-append
-
 # tokyo night theme for fzf
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --highlight-line \
@@ -27,5 +22,4 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --color=separator:#ff9e64 \
   --color=spinner:#ff007c \
 "
-
 

@@ -127,6 +127,7 @@ source $ZSH/oh-my-zsh.sh
 
 source ~/dotfiles/zsh/.zshrc_binds
 source ~/dotfiles/zsh/.zshrc_aliases
+source ~/dotfiles/zsh/.zshrc_color
 
 # don't share history between terminals literally why would that be a default in omz
 unsetopt share_history
